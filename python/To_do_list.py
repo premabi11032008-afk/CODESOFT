@@ -90,7 +90,7 @@ class Element(ctk.CTkFrame):
                                 corner_radius=12)
         self.text_box.grid(row=1,column=0)
 
-        if task_state==1:
+        if task_state=="1":
             self.text_box.select()
             self.text_box.configure(font=(TEXT_FONT,TEXT_FONT_SIZE,"overstrike"))
 
