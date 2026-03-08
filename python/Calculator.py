@@ -7,21 +7,28 @@ BUTTON_WIDTH=70
 class Calculator(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("green")
+
         self.expression=""
         self.expression_label=""
 
         self.title("Calculator")
-        self.geometry("450x500")
+        self.geometry("450x550")
         self.resizable(False,False)
 
-        self.second_label=ctk.CTkLabel(self,text="",font=("arial",15))
-        self.second_label.pack(anchor="e",padx=50)
+        display_frame = ctk.CTkFrame(self, fg_color="transparent")
+        display_frame.pack(fill="x", padx=20, pady=20)
 
-        self.result_label=ctk.CTkLabel(self,text="")
-        self.result_label.pack(expand=True,fill="both")
+        self.second_label = ctk.CTkLabel(display_frame,text="",font=("Arial",18),anchor="e")
+        self.second_label.pack(fill="x")
+
+        self.result_label = ctk.CTkLabel(display_frame,text="0",font=("Arial",40,"bold"),anchor="e")
+        self.result_label.pack(fill="x")
 
         btn_frame=ctk.CTkFrame(self)
-        btn_frame.pack(expand=True,fill="both",padx=20)
+        btn_frame.pack(expand=True, fill="both", padx=20, pady=10)
 
         btns=ctk.CTkFrame(btn_frame)
         btns.grid(row=0,column=0,columnspan=7)
@@ -33,21 +40,33 @@ class Calculator(ctk.CTk):
         
         for index in range(len(buttons)):
 
+            if buttons[index] in "+-*/%^AC()":
+                color = "#ff9500"
+            else:
+                color = None
+
             cmd=(lambda ind=index: self.press(buttons[ind])) if buttons[index]!="AC" else self.all_clear
+
             btn=ctk.CTkButton(btns,width=BUTTON_WIDTH,height=BUTTON_HEIGHT,
-                              command=cmd,text=buttons[index])
-            btn.grid(row=index//5,column=index%5)
+                              command=cmd,text=buttons[index],fg_color=color)
+            btn.grid(row=index//5, column=index%5, padx=5, pady=5, sticky="nsew")
         
         eql_btn=ctk.CTkButton(btn_frame,text="=",command=self.evaluate,
-                              height=BUTTON_HEIGHT,width=BUTTON_WIDTH)
+                              height=BUTTON_HEIGHT,width=BUTTON_WIDTH,fg_color="#2ecc71",font=("Arial",20,"bold"))
         eql_btn.grid(row=1,column=0,columnspan=5,sticky="nswe")
 
-        back = ctk.CTkButton(btn_frame,text="⌫",command=self.backspace)
+        back = ctk.CTkButton(btn_frame,text="⌫",command=self.backspace,fg_color="red")
         back.grid(row=1,column=6,sticky="nsew")
 
         self.bind("<Return>", lambda e: self.evaluate())
         self.bind("<BackSpace>", lambda e: self.backspace())
         self.bind("<Escape>", lambda e: self.clear())
+
+        for i in range(5):
+            btns.grid_columnconfigure(i, weight=1)
+
+        for i in range(4):
+            btns.grid_rowconfigure(i, weight=1)
 
         for key in "0123456789+-*/().%":
             self.bind(key, lambda e, k=key: self.press(k))
@@ -105,7 +124,7 @@ class Calculator(ctk.CTk):
             self.update()
     
     def evaluate(self):
-        self.expression.replace("^","**")
+        self.expression=self.expression.replace("^","**")
 
         count_open_parathesis=0
         count_closed_parathesis=0
