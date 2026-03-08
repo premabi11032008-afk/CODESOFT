@@ -8,13 +8,14 @@ PADDING_Y=10
 DEFAULT_ELEMENT_HEIGHT=80
 DEFAULT_ELEMENT_WIDTH=800-2*PADDING_X
 
-TEXT_FONT="Arial"
-TEXT_FONT_SIZE=28
+TEXT_FONT="Segoe UI"
+TEXT_FONT_SIZE=24
 
-DATE_FONT="Arial"
-DATE_FONT_SIZE=15
+DATE_FONT="Segoe UI"
+DATE_FONT_SIZE=13
 
-TEXT_COLOR="white"
+TEXT_COLOR="#E2E8F0"
+DUEDATE_TEXT_COLOUR="#94A3B8"
 
 class Ask_For_Text(ctk.CTkToplevel):
     def __init__(self, parent, default_task="", default_duedate="",title=""):
@@ -22,23 +23,29 @@ class Ask_For_Text(ctk.CTkToplevel):
         self.result=(default_task,default_duedate)
         self.grab_set()
 
-        self.geometry("350x220")
+        self.geometry("350x300")
         self.resizable(False, False)
         self.grid_columnconfigure(0, weight=1)
 
         title = ctk.CTkLabel(self,text=title,font=("Segoe UI", 20, "bold"))
         title.grid(row=0, column=0, pady=(20,10))
 
+        task_label = ctk.CTkLabel(self, text="Task", anchor="w")
+        task_label.grid(row=1, column=0, sticky="w", padx=50)
+
         self.task_entry = ctk.CTkEntry(self,placeholder_text="Enter task...",width=250)
         self.task_entry.insert(0, default_task)
-        self.task_entry.grid(row=1, column=0, pady=10)
+        self.task_entry.grid(row=2, column=0, pady=10)
+
+        date_label = ctk.CTkLabel(self, text="Due Date", anchor="w")
+        date_label.grid(row=3, column=0, sticky="w", padx=50)
 
         self.date_entry = ctk.CTkEntry(self,placeholder_text="Due date (e.g. 25 Mar)",width=250)
         self.date_entry.insert(0, default_duedate)
-        self.date_entry.grid(row=2, column=0, pady=10)
+        self.date_entry.grid(row=4, column=0, pady=10)
 
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.grid(row=3, column=0, pady=20)
+        btn_frame.grid(row=5, column=0, pady=20)
 
         cancel_btn = ctk.CTkButton(btn_frame,text="Cancel",width=100,command=self.destroy)
         cancel_btn.grid(row=0, column=0, padx=10)
@@ -61,7 +68,7 @@ class Ask_For_Text(ctk.CTkToplevel):
     
 
 class Element(ctk.CTkFrame):
-    def __init__(self,parent,task="",due_date=None,color="yellow", task_state=0):
+    def __init__(self,parent,task="",due_date=None,color="#1E293B", task_state=0):
         super().__init__(parent,height=DEFAULT_ELEMENT_HEIGHT,
                          width=DEFAULT_ELEMENT_WIDTH,fg_color=color)
         
@@ -79,7 +86,8 @@ class Element(ctk.CTkFrame):
 
         self.text_box=ctk.CTkCheckBox(self,text=task.title(),
                                 text_color=TEXT_COLOR,font=(TEXT_FONT,TEXT_FONT_SIZE),
-                                command=self.update_font)
+                                command=self.update_font,fg_color="#3B82F6",hover_color="#2563EB",
+                                corner_radius=12)
         self.text_box.grid(row=1,column=0)
 
         if task_state==1:
@@ -87,13 +95,15 @@ class Element(ctk.CTkFrame):
             self.text_box.configure(font=(TEXT_FONT,TEXT_FONT_SIZE,"overstrike"))
 
         self.date=ctk.CTkLabel(self,text=f"Due Date : {due_date}",
-                          text_color=TEXT_COLOR,font=(DATE_FONT,DATE_FONT_SIZE))
+                          text_color=DUEDATE_TEXT_COLOUR,font=(DATE_FONT,DATE_FONT_SIZE))
         self.date.grid(row=2,column=0,sticky="w",padx=10,pady=10)
 
-        delete_btn=ctk.CTkButton(self,text="🗑",fg_color="red",width=20,command=self.delete)
+        delete_btn=ctk.CTkButton(self,text="🗑",fg_color="#EF4444",
+                                 hover_color="#DC2626",width=20,command=self.delete)
         delete_btn.grid(row=2,column=2,sticky="e",padx=5)
 
-        edit_btn=ctk.CTkButton(self,text="Edit",fg_color="green",command=self.edit)
+        edit_btn=ctk.CTkButton(self,text="Edit",fg_color="#10B981",
+                               hover_color="#059669",command=self.edit)
         edit_btn.grid(row=2,column=1,sticky="e",padx=5)
 
         self.pack(padx=PADDING_X,pady=PADDING_Y)
@@ -132,6 +142,7 @@ file=open("python/To do list.csv","r",newline="")
 root=ctk.CTk()
 root.title("To Do List creator")
 root.geometry("800x600")
+root.configure(fg_color="#0F172A")
 root.resizable(False, False)
 
 main=ctk.CTkScrollableFrame(root)
@@ -157,4 +168,3 @@ with open("python/To do list.csv","w",newline="") as file:
     writer=csv.writer(file)
     for task in tasks:
         writer.writerow([task.text,task.duedate,task.text_box.get()])
-
