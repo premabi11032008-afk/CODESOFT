@@ -2,6 +2,22 @@ import customtkinter as ctk
 from tkinter.messagebox import showerror,showinfo
 import random as rd
 
+def update_length(value):
+    length_label.configure(text=f"Length: {int(value)}")
+
+show_password = False
+
+def toggle_password():
+    global show_password
+    show_password = not show_password
+
+    if show_password:
+        result_entry.configure(show="")
+        eye_button.configure(text="🙈")  
+    else:
+        result_entry.configure(show="*")
+        eye_button.configure(text="👁️")  
+
 def animate_password(text, index=0):
 
     print('[info] enter animate_password method')
@@ -38,18 +54,7 @@ def generate_passward():
         showerror("error","choose a feild/feilds for password")
         return
     
-    try:
-        entry=entry_box.get()
-
-        if not entry:
-            showinfo("Info","Pls enter the password lenght")
-            return
-        
-        password_len=int(entry)
-    
-    except Exception as e:
-        showerror("Error",str(e))
-        return 
+    password_len = int(length_slider.get())
     
     password = []
     
@@ -59,17 +64,6 @@ def generate_passward():
     rd.shuffle(password)
     password = "".join(password)
     animate_password(password)
-    flash_entry()
-
-def flash_entry(count=0):
-    colors = ["#2ecc71", "#27ae60"]  
-
-    result_entry.configure(border_color=colors[count % 2])
-
-    if count < 4:
-        root.after(100, flash_entry, count+1)
-    else:
-        result_entry.configure(border_color="#444")
 
 def create_checkbox(frame,text):
     btn=ctk.CTkCheckBox(frame,
@@ -83,21 +77,17 @@ root=ctk.CTk()
 root.geometry("600x600")
 root.resizable(False,False)
 
-main_frame=ctk.CTkFrame(root,400,400)
+main_frame=ctk.CTkFrame(root,400,400,fg_color="#111827")
 main_frame.pack(padx=50, pady=50, fill="both", expand=True)
 
 main_frame.pack_propagate(False)
 
-entry_frame=ctk.CTkFrame(main_frame,height=100,width=400)
-entry_frame.pack(padx=10,pady=10)
+length_slider = ctk.CTkSlider(main_frame, from_=4, to=100, number_of_steps=100,command=update_length)
+length_slider.set(10)
+length_slider.pack(pady=10, padx=20, fill="x")
 
-entry_frame.pack_propagate(False)
-
-entry_label=ctk.CTkLabel(entry_frame,100,30,20,text="Enter the number of characters:",font=("Arial",18))
-entry_label.pack(pady=10,anchor="w",padx=10)
-
-entry_box=ctk.CTkEntry(entry_frame,100,30)
-entry_box.pack(pady=5,padx=30)
+length_label = ctk.CTkLabel(main_frame, text="Length: 12", font=("Arial", 14))
+length_label.pack()
 
 special_charater_needed=create_checkbox(main_frame,"Include special characters ")
 number_needed=create_checkbox(main_frame,text="Include Numbers")
@@ -107,11 +97,13 @@ lowercase_needed=create_checkbox(main_frame,text="Incude Lower case letters")
 submit_button=submit_button = ctk.CTkButton(
     main_frame,
     text="Generate Password",
-    fg_color="#ff4d4d",
-    hover_color="#cc0000",
+    fg_color="#22c55e",
+    hover_color="#16a34a",
+    text_color="black",
     command=generate_passward
 )
 submit_button.pack(pady=50,padx=10)
+
 
 
 def on_press():
@@ -126,10 +118,22 @@ submit_button.bind("<ButtonRelease>", lambda e: on_release())
 result_frame = ctk.CTkFrame(main_frame)
 result_frame.pack(pady=10, padx=10, fill="x")
 
-result_entry = ctk.CTkEntry(result_frame, font=("Arial", 16))
+result_entry = ctk.CTkEntry(result_frame, font=("Arial", 16), fg_color="#020617",
+    border_color="#22c55e",
+    text_color="#22c55e",
+    show="*")
 result_entry.pack(side="left", fill="x", expand=True, padx=5, pady=5)
 
-copy_button = ctk.CTkButton(result_frame, text="Copy", width=80,command=copy_password)
+eye_button = ctk.CTkButton(result_frame, text="👁️", width=50,  fg_color="#111827",
+    hover_color="#1f2937",command=toggle_password)
+eye_button.pack(side="right", padx=5)
+
+copy_button = ctk.CTkButton(result_frame, text="Copy", width=80,command=copy_password,
+    fg_color="#38bdf8",
+    hover_color="#0ea5e9",
+    text_color="black"
+)
 copy_button.pack(side="right", padx=5)
+
 
 root.mainloop()
