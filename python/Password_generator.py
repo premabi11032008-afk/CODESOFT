@@ -77,22 +77,35 @@ root=ctk.CTk()
 root.geometry("600x600")
 root.resizable(False,False)
 
-main_frame=ctk.CTkFrame(root,400,400,fg_color="#111827")
+main_frame=ctk.CTkFrame(root,400,400,fg_color="#111827",corner_radius=20,
+    border_width=1,
+    border_color="#1f2937")
 main_frame.pack(padx=50, pady=50, fill="both", expand=True)
 
 main_frame.pack_propagate(False)
 
-length_slider = ctk.CTkSlider(main_frame, from_=4, to=100, number_of_steps=100,command=update_length)
-length_slider.set(10)
-length_slider.pack(pady=10, padx=20, fill="x")
+title_label = ctk.CTkLabel(
+    main_frame,
+    text="Password Generator",
+    font=("Arial", 24, "bold"),
+    text_color="#e5e7eb"
+)
+title_label.pack(pady=(10, 20))
 
-length_label = ctk.CTkLabel(main_frame, text="Length: 12", font=("Arial", 14))
+controls_frame = ctk.CTkFrame(main_frame, fg_color="#020617")
+controls_frame.pack(padx=20, pady=10, fill="x")
+
+length_slider = ctk.CTkSlider(controls_frame, from_=4, to=100, number_of_steps=100,command=update_length)
+length_slider.set(10)
+length_slider.pack(pady=(0, 10), padx=20, fill="x")
+
+length_label = ctk.CTkLabel(controls_frame, text="Length: 12", font=("Arial", 14))
 length_label.pack()
 
-special_charater_needed=create_checkbox(main_frame,"Include special characters ")
-number_needed=create_checkbox(main_frame,text="Include Numbers")
-upercase_needed=create_checkbox(main_frame,text="Incude Uppercase letters")
-lowercase_needed=create_checkbox(main_frame,text="Incude Lower case letters")
+special_charater_needed=create_checkbox(controls_frame,"Include special characters ")
+number_needed=create_checkbox(controls_frame,text="Include Numbers")
+upercase_needed=create_checkbox(controls_frame,text="Incude Uppercase letters")
+lowercase_needed=create_checkbox(controls_frame,text="Incude Lower case letters")
 
 submit_button=submit_button = ctk.CTkButton(
     main_frame,
@@ -102,21 +115,10 @@ submit_button=submit_button = ctk.CTkButton(
     text_color="black",
     command=generate_passward
 )
-submit_button.pack(pady=50,padx=10)
-
-
-
-def on_press():
-    submit_button.configure(scale=0.95)
-
-def on_release():
-    submit_button.configure(scale=1)
-
-submit_button.bind("<ButtonPress>", lambda e: on_press())
-submit_button.bind("<ButtonRelease>", lambda e: on_release())
+submit_button.pack(pady=30,padx=10)
 
 result_frame = ctk.CTkFrame(main_frame)
-result_frame.pack(pady=10, padx=10, fill="x")
+result_frame.pack(pady=20, padx=10, fill="x")
 
 result_entry = ctk.CTkEntry(result_frame, font=("Arial", 16), fg_color="#020617",
     border_color="#22c55e",
