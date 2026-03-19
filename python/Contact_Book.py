@@ -1,0 +1,138 @@
+import customtkinter as ctk
+from tkinter.messagebox import showerror
+import csv
+
+class Ask_For_Text(ctk.CTkToplevel):
+    def __init__(self, parent,title):
+        super().__init__(parent)
+        self.result=("","")
+        self.grab_set()
+
+        self.geometry("350x300")
+        self.resizable(False, False)
+        self.grid_columnconfigure(0, weight=1)
+
+        title = ctk.CTkLabel(self,text=title,font=("Segoe UI", 20, "bold"))
+        title.grid(row=0, column=0, pady=(20,10))
+
+        name_label = ctk.CTkLabel(self, text="Name", anchor="w")
+        name_label.grid(row=1, column=0, sticky="w", padx=50)
+
+        self.name_entry = ctk.CTkEntry(self,placeholder_text="Enter Name..",width=250)
+        self.name_entry.grid(row=2, column=0, pady=10)
+
+        phone_label = ctk.CTkLabel(self, text="Phone Number", anchor="w")
+        phone_label.grid(row=3, column=0, sticky="w", padx=50)
+
+        self.number_entry = ctk.CTkEntry(self,placeholder_text="Enter a Phone Number",width=250)
+        self.number_entry.grid(row=4, column=0, pady=10)
+
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.grid(row=5, column=0, pady=20)
+
+        cancel_btn = ctk.CTkButton(btn_frame,text="Cancel",width=100,command=self.destroy)
+        cancel_btn.grid(row=0, column=0, padx=10)
+
+        save_btn = ctk.CTkButton(btn_frame,text="Save",width=100,command=self.save_task)
+        save_btn.grid(row=0, column=1, padx=10)
+
+    def save_task(self):
+        name = self.name_entry.get()
+        number = self.number_entry.get()
+
+        self.result=(name,number)
+        self.destroy()
+    
+
+class Element(ctk.CTkFrame):
+    def __init__(self,parent : ctk.CTk ,name: str, phone_number : str):
+
+        super().__init__(master=parent,width=500,height=100,corner_radius=20,fg_color="#1E293B")
+        self.parent=parent
+        self.name=name
+        self.number=phone_number
+
+        if phone_number.isdigit() and len(phone_number) < 9:
+            showerror("Invalid Phone Number","Phone number cannot be digit or less than 9")
+            return
+        
+        if not name:
+            showerror(' Name not identified Error',"Kindly enter a Name task to continue")
+            return
+        
+        self.pack(padx=10,pady=10)
+
+        self.name_label=ctk.CTkLabel(self,text=f"Name : {name.title()} | Phone : {phone_number}",
+                          text_color="#94A3B8",font=("Segoe UI",18),width=400)
+        self.name_label.grid(row=0,column=0,sticky="nswe",padx=10,pady=10)
+
+        delete_btn=ctk.CTkButton(self,text="🗑",fg_color="#EF4444",
+                                 hover_color="#DC2626",width=20,command=self.delete)
+        delete_btn.grid(row=1,column=1,sticky="e",padx=5)
+
+        edit_btn=ctk.CTkButton(self,text="Edit",fg_color="#10B981",
+                               hover_color="#059669",command=self.update)
+        edit_btn.grid(row=1,column=0,sticky="e",padx=5)
+
+        self.pack(padx=10,pady=10)
+        self.grid_propagate(False)
+    
+    def update(self):
+        window=Ask_For_Text(self.parent,"Update the existing Contact")
+
+        self.parent.wait_window(window)
+        name,phone_number=window.result
+        
+        self.name_label.configure(text=f"Name : {name} | Phone : {phone_number}")
+    
+    def delete(self):
+        Contact_Book.remove(self)
+        self.destroy()
+
+root=ctk.CTk()
+root.geometry("600x500")
+root.title("Phone Book")
+
+with open("Contact Book.csv","a+",newline="") as file:
+    file.seek(0)
+    reader=list(csv.reader(file))
+
+    Contact_Book=[]
+
+    for row in reader:
+        if row:
+            Contact_Book.append(Element(root,row[0],row[1]))
+
+def add_element():
+    dialog=Ask_For_Text(root,title="Add a task ")
+    root.wait_window(dialog)
+
+    name,phone_number=dialog.result
+
+    if (not phone_number.isdigit()) or (len(phone_number) < 9):
+        showerror("Invalid Phone Number","Phone number cannot be digit or less than 9")
+        return
+        
+    if not name:
+        showerror(' Name not identified Error',"Kindly enter a Name task to continue")
+        return
+    
+    Contact_Book.append(Element(root,name,phone_number))
+
+add_button = ctk.CTkButton(root,text="+",width=80,height=60,corner_radius=15,
+                           font=("Segoe UI", 30, "bold"),bg_color="transparent",
+                           fg_color="#3B82F6",hover_color="#2563EB",border_width=0,
+                           command=add_element)
+
+add_button.place(relx=1.0, rely=1.0, anchor="se", x=-20, y=-20)
+
+root.mainloop()
+
+with open("Contact Book.csv","w") as file:
+    writer=csv.writer(file)
+    for contact in Contact_Book:
+        writer.writerow([contact.name,contact.number])
+
+        
+
+        
