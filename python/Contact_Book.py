@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter.messagebox import showerror
+from tkinter.messagebox import showerror,askyesno
 import csv
 
 class Ask_For_Text(ctk.CTkToplevel):
@@ -37,15 +37,15 @@ class Ask_For_Text(ctk.CTkToplevel):
         save_btn.grid(row=0, column=1, padx=10)
 
     def save_task(self):
-        name = self.name_entry.get()
-        number = self.number_entry.get()
+        name = self.name_entry.get().strip().title()
+        number = self.number_entry.get().strip()
 
         self.result=(name,number)
         self.destroy()
     
 
 class Element(ctk.CTkFrame):
-    def __init__(self,parent : ctk.CTk ,name: str, phone_number : str):
+    def __init__(self,parent ,name: str, phone_number : str):
 
         super().__init__(master=parent,width=500,height=100,corner_radius=20,fg_color="#1E293B")
         self.parent=parent
@@ -86,29 +86,46 @@ class Element(ctk.CTkFrame):
         self.name_label.configure(text=f"Name : {name} | Phone : {phone_number}")
     
     def delete(self):
-        Contact_Book.remove(self)
+        Contact_Book.pop(self.name)
+        ELEMENTS.remove(self)
         self.destroy()
 
-root=ctk.CTk()
-root.geometry("600x500")
-root.title("Phone Book")
+main_frame=ctk.CTk()
+main_frame.geometry("600x500")
+main_frame.title("Phone Book")
+
+root=ctk.CTkScrollableFrame(main_frame,orientation="vertical")
+root.pack(expand=True,fill="both")
+
+ELEMENTS=[]
 
 with open("Contact Book.csv","a+",newline="") as file:
     file.seek(0)
     reader=list(csv.reader(file))
 
-    Contact_Book=[]
+    Contact_Book={}
 
     for row in reader:
         if row:
-            Contact_Book.append(Element(root,row[0],row[1]))
+            Contact_Book[row[0]]=row[1]
+            ELEMENTS.append(Element(root,row[0],row[1]))
+
+def fectch_the_corrsponding_element(name = "" ,number = "") -> Element|int:
+    for element in ELEMENTS:
+        if element.name == name:
+            return element
+
+        if element.number==number:
+            return element
+     
+    return -1
 
 def add_element():
     dialog=Ask_For_Text(root,title="Add a task ")
     root.wait_window(dialog)
 
     name,phone_number=dialog.result
-
+   
     if (not phone_number.isdigit()) or (len(phone_number) < 9):
         showerror("Invalid Phone Number","Phone number cannot be digit or less than 9")
         return
@@ -116,21 +133,32 @@ def add_element():
     if not name:
         showerror(' Name not identified Error',"Kindly enter a Name task to continue")
         return
-    
-    Contact_Book.append(Element(root,name,phone_number))
 
-add_button = ctk.CTkButton(root,text="+",width=80,height=60,corner_radius=15,
+    
+    if name in Contact_Book :
+        if Contact_Book[name]!=phone_number and askyesno("Confirmation","The Number already exists do you want to \n Replace ?"):
+            element=fectch_the_corrsponding_element(name=name)
+            element.name_label.configure(text=f" Name : {name} | Phone : {phone_number}")
+        
+        if Contact_Book[name]==phone_number:
+            return
+    else:
+        Contact_Book[name]=phone_number
+        ELEMENTS.append(Element(root,name=name,phone_number=phone_number))
+
+
+add_button = ctk.CTkButton(main_frame,text="+",width=80,height=60,corner_radius=15,
                            font=("Segoe UI", 30, "bold"),bg_color="transparent",
                            fg_color="#3B82F6",hover_color="#2563EB",border_width=0,
                            command=add_element)
 
 add_button.place(relx=1.0, rely=1.0, anchor="se", x=-20, y=-20)
 
-root.mainloop()
+main_frame.mainloop()
 
 with open("Contact Book.csv","w") as file:
     writer=csv.writer(file)
-    for contact in Contact_Book:
+    for contact in ELEMENTS:
         writer.writerow([contact.name,contact.number])
 
         
