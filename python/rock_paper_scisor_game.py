@@ -23,45 +23,48 @@ def check_condition(text:str)-> None:
     else:
         result=" Game ends in Draw ."
     
-    showinfo("Round Result",f"""
-             
-Computer Choosed : {computer_choice}
-
-"""+result)
-    score_label.configure(text=f"Score : {score}")
-    max_score_label.configure(text=f" Max Score : {max_score}")
+    showinfo(
+    " Round Result",
+    f"Computer chose: {computer_choice}\n\n{result}")
+    score_label.configure(text=f"Score : {score} | Max Score : {max_score}")
     
 
 root=ctk.CTk()
+
 root.title("Rack Paper Scissor Game")
-root.geometry("400x400")
+root.geometry("420x500")
+root.resizable(False, False)
+
+main_frame = ctk.CTkFrame(root, corner_radius=15)
+main_frame.pack(padx=20, pady=20, fill="both", expand=True)
 
 title_label = ctk.CTkLabel(
-    root,
-    text="Rock Paper Scissor Game ",
-    font=("Arial", 24, "bold"),
-    text_color="#e5e7eb"
+    main_frame,
+    text="🎮 Rock Paper Scissors",
+    font=("Arial", 26, "bold")
 )
 title_label.pack(pady=(10, 20))
 
-max_score_label = ctk.CTkLabel(
-    root,
-    text="Max Score : 0",
-    font=("Arial", 14),
-    text_color="#e5e7eb"
-)
-max_score_label.pack(pady=5)
-
 score_label = ctk.CTkLabel(
-    root,
-    text="Score : 0",
-    font=("Arial", 14),
-    text_color="#e5e7eb"
+    main_frame,
+    text="Score: 0 | Max: 0",
+    font=("Arial", 16)
 )
-score_label.pack(pady=5)
+score_label.pack()
+
+button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+button_frame.pack(pady=20)
 
 for text in ["Rock","Paper","Scissor"]:
-    btn=ctk.CTkButton(root,text=text,command=lambda txt=text : check_condition(txt))
+    btn = ctk.CTkButton(
+    button_frame,
+    text=f"✊ {text}",
+    width=200,
+    height=45,
+    corner_radius=10,
+    font=("Arial", 14, "bold"),
+    command=lambda txt=text: check_condition(txt))
+
     btn.pack(pady=15)
 
 root.mainloop()
