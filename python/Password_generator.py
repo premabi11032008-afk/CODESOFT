@@ -19,9 +19,6 @@ def toggle_password():
         eye_button.configure(text="👁️")  
 
 def animate_password(text, index=0):
-
-    print('[info] enter animate_password method')
-
     if index <= len(text):
         result_entry.configure(state="normal")
         result_entry.delete(0, "end")
@@ -31,7 +28,6 @@ def animate_password(text, index=0):
         root.after(30, animate_password, text, index+1)
 
 def copy_password():
-    print("[info] entered copy_password method")
     root.clipboard_clear()
     root.clipboard_append(result_entry.get())
     copy_button.configure(text="Copied ✓", fg_color="#2ecc71")
@@ -39,8 +35,6 @@ def copy_password():
 
 def generate_passward():
     global result_entry
-
-    print("[info]: entered generate password method")
 
     vocab=""
     alphabets="abcdefghijklmnopqrstuvwxyz"
